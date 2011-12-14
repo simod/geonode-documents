@@ -24,7 +24,7 @@ setup(
 	packages=find_packages('.'),
 	include_package_data=True,
 	package_data={
-		'':['fixtures/*.*'],
+		'':['fixtures/*.*','templates/documents/*.*'],
 	},
 	zip_safe=False,
 )

@@ -45,6 +45,4 @@ documents/urls.pyc
 
 nosetests.xml
 
-documents/models.py
-
 documents/views.pyc
