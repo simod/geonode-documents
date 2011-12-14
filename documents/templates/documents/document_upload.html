@@ -1,0 +1,214 @@
+{% extends "page_layout.html" %}
+{% load i18n %}
+
+{% block title %} {% trans "Upload Cartography" %} - {{ block.super }} {% endblock %}
+
+{% block head %}
+    {% include "geonode/ext_header.html" %}
+    {% include "geonode/app_header.html" %}
+    {% include "geonode/geo_header.html" %}
+    <link rel="stylesheet" type="text/css"
+          href="{{ GEONODE_CLIENT_LOCATION }}theme/ux/fileuploadfield/fileuploadfield.css"/>
+    {{ block.super }}
+    <script type="text/javascript">
+        Ext.onReady(function() {
+	         {% autoescape off %}
+
+	        var win = new Ext.Window({
+				height: 'auto',
+				width: 700,
+				title: 'New Map',
+				collapsible: false,
+				closable: false,
+				resizable: false,
+				minimizable: true,
+				minimizeTo: Ext.get('newmap'),
+				hideBorders: false,
+				layout: 'fit',
+				x: 100,
+				y: 130,
+				items:[
+					new  Ext.Panel({
+						html: "<iframe id=\"map\" name=\"map\" style=\"overflow:auto;width:100%;height:600px;\" frameborder=\"0\"  src=\"/documents/newmap\"></iframe>"
+					})
+				],
+				listeners: {
+					minimize: function(){
+						this.hide(this.minimizeTo);
+					}
+				}
+	        });
+
+			Ext.get('newmap').on('click',function(){win.show()});
+		
+            {% endautoescape %}
+        });
+    </script>
+	<script type="text/javascript">
+		function refreshMaps(){
+			Ext.getCmp('id_map').store.reload();
+		}
+	</script>
+{% endblock %}
+
+{% block main %}
+    <div class="twocol">
+        <h2>{% trans "Add document" %}</h2>
+        {% if errors %}
+            <div id="errors">
+                {% for error in errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div id="upload_form">
+	        <button type="button" id="newmap">New Map</button>
+        </div>
+    </div>
+    <script type="text/javascript">
+        {% autoescape off %}
+            Ext.onReady(function() {
+				Ext.QuickTips.init();
+
+				var form_target = "{% url documents.views.upload_document %}";
+
+				var title = new Ext.form.TextField({
+				    id: 'title',
+				    fieldLabel: gettext('Title'),
+					emptyText: gettext('Choose a title'),
+				    name: 'title'
+				});
+
+				var listeners = {
+					"fileselected": function(cmp, value) {
+						// remove the path from the filename - avoids C:/fakepath etc.
+						cmp.setValue(value.split(/[/\\]/).pop());
+					}
+				};
+
+	            var themap = new Ext.form.ComboBox({
+					typeAhead: true,
+					triggerAction: 'all',
+					id: 'id_map',
+					mode: 'local',
+					fieldLabel: gettext('Map'),
+					emptyText: gettext('Select a map to link the document with'),
+					autoSelect: true,
+					name: 'map',
+					forceSelection: true,
+					store: new Ext.data.JsonStore({
+						url: '{% url maps_search_api %}',
+						baseParams: {limit: 50},
+						root:'rows',
+						storeId: 'maps',
+						fields: ['id','title'],
+						idProperty: 'id',
+						autodestroy: true
+					}),
+					valueField: 'id',
+					displayField: 'title',
+					hiddenName: 'map',
+		            listeners:{
+			            afterrender: function(el){
+				            el.store.load(
+							{% if mapid %}
+							{
+					            callback:function(){
+									el.setValue(el.store.getById({{ mapid }}).data.id);
+						        }
+				            }
+							{% endif %});
+			            }
+		            }
+	            });
+
+				var base_file = new Ext.ux.form.FileUploadField({
+					id: 'base_file',
+					emptyText: gettext('Select a document data file'),
+					fieldLabel: gettext('File'),
+					name: 'file',
+					allowBlank: false,
+					listeners: listeners
+				});
+
+				var permissionsField = new Ext.form.Hidden({
+					name: "permissions"
+				});
+
+				var fp = new Ext.FormPanel({
+					renderTo: 'upload_form',
+					fileUpload: true,
+					width: 500,
+					frame: true,
+					autoHeight: true,
+					unstyled: true,
+					labelWidth: 50,
+					defaults: {
+						anchor: '95%',
+						msgTarget: 'side'
+					},
+					items: [themap,title, base_file, permissionsField, {
+						xtype: "hidden",
+						name: "csrfmiddlewaretoken",
+						value: "{{ csrf_token }}"
+					}],
+					buttons: [{
+						text: gettext('Upload'),
+						handler: function(){
+							if (fp.getForm().isValid()) {
+								fp.getForm().submit({
+									url: form_target,
+									waitMsg: gettext('Uploading your data...'),
+									success: function(fp, o) {
+										document.location = o.result.redirect_to;
+									},
+									failure: function(fp, o) {
+										error_message = '<ul>';
+										for (var i = 0; i < o.result.errors.length; i++) {
+											error_message += '<li>' + o.result.errors[i] + '</li>'
+										}
+										error_message += '</ul>';
+
+										Ext.Msg.show({
+											title: gettext("Error"),
+											msg: error_message,
+											minWidth: 200,
+											modal: true,
+											icon: Ext.Msg.ERROR,
+											buttons: Ext.Msg.OK
+										});
+									}
+								});
+							}
+						}
+					}]
+				});
+                var permissionsEditor = new GeoNode.PermissionsEditor({
+                    renderTo: "permissions_form",
+                    userLookup: "{% url geonode.views.ajax_lookup %}",
+                    listeners: {
+                        updated: function(pe) {
+                            permissionsField.setValue(Ext.util.JSON.encode(pe.writePermissions()));
+                        }
+                    },
+                    permissions: {
+                        anonymous: 'documents_readonly',
+                        authenticated: 'documents_readonly',
+                        users:[]
+                    }
+                });
+                permissionsEditor.fireEvent("updated", permissionsEditor);
+            });
+        {% endautoescape %}
+    </script>
+
+{% endblock %}
+
+{% block sidebar %}
+    <div class="threecol">
+        <h3>{% trans "Permissions" %}</h3>
+
+        <div id="permissions_form"></div>
+    </div>
+{% endblock %}
