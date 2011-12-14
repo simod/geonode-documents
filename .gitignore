@@ -2,3 +2,13 @@
 documents/.DS_Store
 
 documents/.coverage
+
+geonode_documents.egg-info/PKG-INFO
+
+geonode_documents.egg-info/SOURCES.txt
+
+geonode_documents.egg-info/not-zip-safe
+
+geonode_documents.egg-info/dependency_links.txt
+
+geonode_documents.egg-info/top_level.txt

@@ -10,14 +10,14 @@ Installation
 
     source bin/activate
 
-    pip install -e git+git://github.com/simod/documents.git#egg=documents
+    pip install -e git+git://github.com/simod/geonode-documents.git#egg=documents
 
 #. Edit your settings.py file and add ``documents`` to the list of installed apps
 
 #. Edit your settings.py file and modify the TEMPLATE_DIRS entry as follows:
 
 	TEMPLATE_DIRS = (
-		os.path.join(PROJECT_ROOT,'..','..','geonode-documents','documents',"templates"),
+		os.path.join(PROJECT_ROOT,'..','..','documents','documents',"templates"),
 		
 		os.path.join(PROJECT_ROOT,"templates"),
 	)
