@@ -30,6 +30,7 @@ def create_document():
 		).save()
 	m.set_default_permissions()
 	c, created = Document.objects.get_or_create(id=1, file=f,owner=superuser)
+	c.set_default_permissions()
 	c.maps.add(m)
 	return c, created
 
@@ -37,7 +38,7 @@ class EventsTest(TestCase):
 
 	def test_map_details(self):
 		"""/maps/1 -> Test accessing the detail view of a map"""
-		create_documents()
+		create_document()
 		map = Map.objects.get(id=1)
 		c = Client()
 		response = c.get("/maps/%s" % str(map.id))
@@ -56,7 +57,7 @@ class EventsTest(TestCase):
 		c = Client()
 		log = c.login(username='bobby', password='bob')
 		self.assertTrue(log)
-		response = c.get("/document/upload")
+		response = c.get("/documents/upload")
 		self.assertTrue('Add document' in response.content)
 
 	def test_document_isuploaded(self):

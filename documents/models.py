@@ -26,8 +26,16 @@ class Document(models.Model,PermissionLevelMixin):
 	@models.permalink
 	def get_absolute_url(self):
 		return self.file.url
+		
+	class Meta:
+		# custom permissions,
+		# change and delete are standard in django
+		permissions = (
+			('view_document', 'Can view'), 
+			('change_document_permissions', "Can change permissions"),
+		)
 
-	LEVEL_READ  = 'document_readonly'
+	LEVEL_READ	= 'document_readonly'
 	LEVEL_WRITE = 'document_readwrite'
 	LEVEL_ADMIN = 'document_admin'
 	
@@ -36,7 +44,7 @@ class Document(models.Model,PermissionLevelMixin):
 		self.set_gen_level(AUTHENTICATED_USERS, self.LEVEL_READ)
 		
 		# remove specific user permissions
-		current_perms =  self.get_all_level_info()
+		current_perms =	 self.get_all_level_info()
 		for username in current_perms['users'].keys():
 			user = User.objects.get(username=username)
 			self.set_user_level(user, self.LEVEL_NONE)
