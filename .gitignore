@@ -54,3 +54,5 @@ build/lib/documents/templates/documents/document_search.html
 build/lib/documents/templates/documents/document_upload.html
 
 build/lib/documents/templates/documents/newmaptpl.html
+
+build/lib/documents/fixtures/test_data.json

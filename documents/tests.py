@@ -18,7 +18,6 @@ import json
 
 LOGIN_URL = settings.SITEURL + "accounts/login/"
 
-#superuser = User.objects.create_superuser('bobby', 'bobby@foo.com', 'bob')
 imgfile = StringIO.StringIO('GIF87a\x01\x00\x01\x00\x80\x01\x00\x00\x00\x00ccc,\x00'
 								'\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;')
 def create_document():
@@ -40,7 +39,8 @@ def create_document():
 	return c, created
 
 class EventsTest(TestCase):
-		
+	fixtures = ['test_data.json',]
+	
 	def test_map_details(self):
 		"""/maps/1 -> Test accessing the detail view of a map"""
 		create_document()
