@@ -26,6 +26,10 @@ DOCUMENT_LEV_NAMES = {
 	Document.LEVEL_ADMIN : _('Administrative')
 }
 
+def documents(request):
+    if request.method == 'GET':
+        return render_to_response('documents/documents.html', RequestContext(request))
+
 def documentdetail(request, docid):
 	"""
 	The view that show details of each document
@@ -152,7 +156,8 @@ def _documents_search(query, start, limit, sort_field, sort_dir):
 			'detail' : reverse('documents.views.documentdetail', args=(document.id,)),
 			'owner' : owner_name,
 			'owner_detail' : reverse('profiles.views.profile_detail', args=(document.owner.username,)),
-			'maps': [(map.id,map.title) for map in document.maps.all()]
+			'maps': [(map.id,map.title) for map in document.maps.all()],
+			'type': document.type
 			}
 		documents_list.append(mapdict)
 

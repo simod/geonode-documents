@@ -27,6 +27,8 @@
 	    showingText: 'UT: Showing',
 	    loadingText: 'UT: Loading',
 	    permalinkText: 'UT: permalink',
+		typeHeaderText: 'UT: Type',
+
 
 	    constructor: function(config) {
 	        this.addEvents('load'); 
@@ -49,7 +51,8 @@
 	                {name: 'detail', type: 'string'},
 	                {name: 'owner', type: 'string'},
 	                {name: 'owner_detail', type: 'string'},
-			        {name: 'maps', type: 'array'}
+			        {name: 'maps', type: 'array'},
+					{name: 'type', type: 'string'}
 	            ]
 	        });
 	        this.searchStore.on('load', function() {
@@ -262,6 +265,11 @@
 	                        return value;
 	                    }
 	                }
+	            },
+				{
+	                header: this.typeHeaderText,
+	                dataIndex: 'type',
+	                id: 'type'
 	            },
 	            {
 	                header: this.contactHeaderText,
