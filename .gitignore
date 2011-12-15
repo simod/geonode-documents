@@ -46,3 +46,11 @@ documents/urls.pyc
 nosetests.xml
 
 documents/views.pyc
+
+build/lib/documents/templates/documents/docinfo.html
+
+build/lib/documents/templates/documents/document_search.html
+
+build/lib/documents/templates/documents/document_upload.html
+
+build/lib/documents/templates/documents/newmaptpl.html
