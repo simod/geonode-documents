@@ -28,7 +28,7 @@ def create_document():
 		MapLayer.objects.from_viewer_config(
 			map=m,
 			layer=lyr,
-			source=settings.MAP_BASELAYERSOURCES[lyr["source"]],
+			source=lyr["source"],
 			ordering=ord
 		).save()
 	m.set_default_permissions()
