@@ -121,7 +121,8 @@ class EventsTest(TestCase):
 	perm_spec = {"anonymous":"_none","authenticated":"_none","users":[["bobby","document_readwrite"]]}
 	
 	def test_set_document_permissions(self):
-		"""Verify that the set_document_permissions view is behaving as expected
+		"""
+		Verify that the set_document_permissions view is behaving as expected
 		"""
 		create_document()
 		# Get a document to work with
