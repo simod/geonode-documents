@@ -25,7 +25,7 @@ Extras
 
 #. In order to have the documents directly linked in the main menu bar:
 
-	(basic) replace the base.html file provided in the "extras" folder with the original one in your template folder. (only use this if you have never modified the page_layout.html file)
+	(basic) replace the base.html file provided in the "extras" folder with the original one in your template folder. (only use this if you have never modified the base.html file)
 	
 	(advanced) copy the content of the base_snippet.html and insert it in your base.html file in the "nav" block.
 
@@ -38,6 +38,6 @@ Extras
 Features
 --------
 
-- (Planned) Integration with GeoNetwork (maps and files registered in GeoNetwork)
+- (Planned) Full metadata from GeoNode ResourceBase
 - (Planned) Auto pdf document creation after using the print button in the map composer.
 
