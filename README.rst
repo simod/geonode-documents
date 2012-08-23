@@ -1,7 +1,7 @@
 Documents App for GeoNode
 ===========================
 
-This is a GeoNode extension to handle documents in farious formats, even images. It works essentially by enabling files to be attached to GeoNode Map. The layers used to compose the map may or may not be registered in GeoNode.
+This is a GeoNode extension to handle documents in various formats, even images. It works essentially by enabling files to be attached to GeoNode Map. The layers used to compose the map may or may not be registered in GeoNode.
 
 Installation
 ------------
