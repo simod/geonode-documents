@@ -1,35 +1,35 @@
-
 {% block head %}
     {% include "geonode/ext_header.html" %}
     {% include "geonode/app_header.html" %}
     {% include "geonode/geo_header.html" %}
 	<link rel="stylesheet" type="text/css"
           href="{{ GEONODE_CLIENT_LOCATION }}theme/ux/fileuploadfield/fileuploadfield.css"/>
-    {{ block.super }}
 
 {% endblock %}
 
 {% block main %}
-
 	<div id="header-wrapper">
-		{{ block.super }}
 	</div>
-
 	<script type="text/javascript">
+		var app;
 		Ext.onReady(function() {
-			{% autoescape off %}
+		{% autoescape off %}
+    		var config = Ext.apply({
+       		 
+        		proxy: "/proxy/?url=",
 
-			var viewerConfig = {
-				proxy: '/proxy/?url=',
-				rest: '/maps/',
-				localGeoServerBaseUrl: "{{ GEOSERVER_BASE_URL }}",
-				homeUrl: "{% url geonode.views.index %}"
+        		/* The URL to a REST map configuration service.  This service 
+         		* provides listing and, with an authenticated user, saving of 
+         		* maps on the server for sharing and editing.
+         		*/
+        		rest: "/maps/",
+        		homeUrl: "{% url home %}",
+        		localGeoServerBaseUrl: "{{ GEOSERVER_BASE_URL }}",
+        		localCSWBaseUrl: "{{ CATALOGUE_BASE_URL }}",
+        		csrfToken: "{{ csrf_token }}",
+    		}, {{ config }});
 
-			};
-
-			viewerConfig = Ext.apply(viewerConfig, {{ config }});
-
-			app = new GeoExplorer(viewerConfig);
+    		app = new GeoExplorer(config);
 			app.on('saved',function(){
 				parent.refreshMaps();
 			});
