@@ -1,21 +1,25 @@
-from geonode.maps.views import _perms_info
-from geonode.core.models import AUTHENTICATED_USERS, ANONYMOUS_USERS
+import json
+import unicodedata
+
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse
-from geonode.maps.models import Map, Contact
-import json
 from django.template import RequestContext, loader
 from django.utils.translation import ugettext as _
-from documents.models import Document
 from django.contrib.auth.decorators import login_required
-from geonode.maps.views import default_map_config
+
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-import unicodedata
+
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.contrib.auth.models import User
 
+from geonode.maps.models import Map
+from geonode.people.models import Contact
+from geonode.security.views import _perms_info
+from geonode.security.models import AUTHENTICATED_USERS, ANONYMOUS_USERS
+
+from documents.models import Document
 
 imgtypes = ['jpg','jpeg','tif','tiff','png','gif']
 
@@ -155,7 +159,7 @@ def _documents_search(query, start, limit, sort_field, sort_dir):
 			'title' : document.title,
 			'detail' : reverse('documents.views.documentdetail', args=(document.id,)),
 			'owner' : owner_name,
-			'owner_detail' : reverse('profiles.views.profile_detail', args=(document.owner.username,)),
+			'owner_detail' : reverse('profile_detail', args=(document.owner.username,)),
 			'maps': [(map.id,map.title) for map in document.maps.all()],
 			'type': document.type
 			}
