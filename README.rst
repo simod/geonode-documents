@@ -25,15 +25,15 @@ Extras
 
 #. In order to have the documents directly linked in the main menu bar:
 
-	(basic) replace the page_layout.html file provided in the "extras" folder with the original one in your template folder. (only use this if you have never modified the page_layout.html file)
+	(basic) replace the base.html file provided in the "extras" folder with the original one in your template folder. (only use this if you have never modified the page_layout.html file)
 	
-	(advanced) copy the content of the page_layout_snippet.html and insert it in your page_layout.html file in the "nav" block.
+	(advanced) copy the content of the base_snippet.html and insert it in your base.html file in the "nav" block.
 
 #. In order to have the documents linked in the map detail template:
 
-	(basic) replace the mapinfo.html file in the "extras/maps" folder with the original one in your template folder. (only use this if you have never modified the mapinfo.html file)
+	(basic) replace the mapinfo.html file in the "extras/maps" folder with the original one in your maps/template/maps folder. (only use this if you have never modified the mapinfo.html file)
 	
-	(advanced) copy the content of the mapinfo_snippet.html and insert it in your mapinfo.html file in the "sidebar" block.
+	(advanced) copy the content of the mapinfo_snippet.html and insert it in your maps/templates/maps/mapinfo.html file in the "sidebar" block.
 
 Features
 --------
