@@ -1,7 +1,7 @@
-{% extends "page_layout.html" %}
+{% extends "base.html" %}
 {% load i18n %}
 
-{% block title %} {% trans "Upload Cartography" %} - {{ block.super }} {% endblock %}
+{% block title %} {% trans "Upload Document" %} - {{ block.super }} {% endblock %}
 
 {% block head %}
     {% include "geonode/ext_header.html" %}
@@ -99,6 +99,7 @@
 					forceSelection: true,
 					store: new Ext.data.JsonStore({
 						url: '{% url maps_search_api %}',
+						method: 'GET',
 						baseParams: {limit: 50},
 						root:'rows',
 						storeId: 'maps',
@@ -184,22 +185,22 @@
 						}
 					}]
 				});
-                var permissionsEditor = new GeoNode.PermissionsEditor({
-                    renderTo: "permissions_form",
-                    userLookup: "{% url geonode.views.ajax_lookup %}",
-                    listeners: {
-                        updated: function(pe) {
-                            permissionsField.setValue(Ext.util.JSON.encode(pe.writePermissions()));
-                        }
-                    },
-                    permissions: {
-                        anonymous: 'documents_readonly',
-                        authenticated: 'documents_readonly',
-                        users:[]
-                    }
-                });
-                permissionsEditor.fireEvent("updated", permissionsEditor);
-            });
+            var permissionsEditor = new GeoNode.PermissionsEditor({
+	        	renderTo: "permissions_form",
+	        	userLookup: "{% url auth_ajax_lookup %}",
+	        	listeners: {
+	            	updated: function(pe) {
+	                	permissionsField.setValue(Ext.util.JSON.encode(pe.writePermissions()));
+	            	}
+	        	},
+	        	permissions: {
+	            	anonymous: 'document_readonly',
+	            	authenticated: 'document_readonly',
+	            	users:[]
+	        	}
+	    	});
+	    	permissionsEditor.fireEvent("updated", permissionsEditor);
+           });
         {% endautoescape %}
     </script>
 
