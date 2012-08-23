@@ -18,6 +18,7 @@ from geonode.maps.models import Map
 from geonode.people.models import Contact
 from geonode.security.views import _perms_info
 from geonode.security.models import AUTHENTICATED_USERS, ANONYMOUS_USERS
+from geonode.maps.views import new_map_config
 
 from documents.models import Document
 
@@ -51,8 +52,8 @@ def documentdetail(request, docid):
 	}))
 
 def newmaptpl(request):
-	config = default_map_config()[0]
-	return render_to_response('documents/newmaptpl.html',RequestContext(request, {'config':json.dumps(config)}))
+	config = new_map_config(request)
+	return render_to_response('documents/newmaptpl.html',RequestContext(request, {'config':config}))
 
 @login_required
 def upload_document(request,mapid=None):
