@@ -3,8 +3,8 @@ from geonode.maps.models import Map
 from django.db.models import signals
 import os
 from django.contrib.auth.models import User
-from geonode.core.models import PermissionLevelMixin
-from geonode.core.models import AUTHENTICATED_USERS, ANONYMOUS_USERS
+from geonode.security.models import PermissionLevelMixin
+from geonode.security.models import AUTHENTICATED_USERS, ANONYMOUS_USERS
 
 
 class Document(models.Model,PermissionLevelMixin):
