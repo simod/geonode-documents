@@ -65,7 +65,13 @@ def upload_document(request,mapid=None):
 		document = Document(title=title, file=file)
 		if request.user.is_authenticated(): document.owner = request.user
 		document.save()
-		document.maps.add(Map.objects.get(id=mapid))
+		document.set_default_permissions()
+		permissionsStr = request.POST['permissions']
+		permissions = json.loads(permissionsStr)
+		set_document_permissions(document, permissions)
+
+		if mapid:
+			document.maps.add(Map.objects.get(id=mapid))
 		return HttpResponse(json.dumps({'success': True,'redirect_to':'/maps/' + str(mapid)}))
 		
 #### DOCUMENTS SEARCHING ####

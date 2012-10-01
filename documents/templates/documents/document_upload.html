@@ -185,6 +185,12 @@
 					}]
 				});
                 var permissionsEditor = new GeoNode.PermissionsEditor({
+                	levels: {
+                		'admin': 'document_admin',
+                		'readwrite': 'document_readwrite',
+                		'readonly': 'document_readonly',
+                		'none': '_none'
+                	},
                     renderTo: "permissions_form",
                     userLookup: "{% url geonode.views.ajax_lookup %}",
                     listeners: {
@@ -193,8 +199,8 @@
                         }
                     },
                     permissions: {
-                        anonymous: 'documents_readonly',
-                        authenticated: 'documents_readonly',
+                        anonymous: 'document_readonly',
+                        authenticated: 'document_readonly',
                         users:[]
                     }
                 });
