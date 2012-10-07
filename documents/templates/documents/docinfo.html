@@ -56,11 +56,13 @@
     <div id="sidebar" class="threecol">
         <h3>{% trans "Link" %}</h3>
 
+        {% if related.title %}
         <p>{% trans "This document is related to a " %} {{ document.content_type.name }}</p>
-        <ul>
-            <li><a href='{{ related.get_absolute_url }}'>{{ related.title }}</a></li>
-        </ul>
-
+        <a href='{{ related.get_absolute_url }}'>{{ related.title }}</a>
+        {% else %}
+        <p>{% trans "This document is not related to any maps or layers" %}</p>
+        {% endif %}
+        
         {% has_obj_perm user document "documents.change_document_permissions" as can_change_permissions %}
         {% if can_change_permissions %}
             <h3>{% trans "Permissions" %}</h3>

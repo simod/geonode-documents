@@ -1,7 +1,6 @@
 import os
 
 from django.db import models
-from geonode.maps.models import Map
 from django.db.models import signals
 from django.contrib.contenttypes.models import ContentType
 
@@ -18,8 +17,8 @@ class Document(models.Model,PermissionLevelMixin):
 	"""
 
 	# Relation to the resource model
-	content_type = models.ForeignKey(ContentType)
-	object_id = models.PositiveIntegerField()
+	content_type = models.ForeignKey(ContentType,blank=True,null=True)
+	object_id = models.PositiveIntegerField(blank=True,null=True)
 
 	title = models.CharField(max_length=255)
 	file = models.FileField(upload_to='documents')

@@ -42,12 +42,16 @@ def documentdetail(request, docid):
 		return HttpResponse(loader.render_to_string('401.html',
 			RequestContext(request, {'error_message':
 				_("You are not allowed to view this document.")})), status=401)
+	try:
+		related = document.content_type.get_object_for_this_type(id=document.object_id)
+	except:
+		related = ''
 
 	return render_to_response("documents/docinfo.html", RequestContext(request, {
 		'permissions_json': json.dumps(_perms_info(document, DOCUMENT_LEV_NAMES)),
 		'document': document,
 		'imgtypes': imgtypes,
-		'related': document.content_type.get_object_for_this_type(id=document.object_id)
+		'related': related
 	}))
 
 def newmaptpl(request):
@@ -64,12 +68,18 @@ def upload_document(request):
 
 	elif request.method == 'POST':
 		
-		content_type = ContentType.objects.get(name=request.POST['ctype'])
-		object_id = request.POST['objid']
+		try:
+			content_type = ContentType.objects.get(name=request.POST['ctype'])
+			object_id = request.POST['objid']
+		except:
+			content_type = None
+			object_id = None
 		try:
 			int(object_id)
 		except: 
-			object_id = Layer.objects.get(uuid=object_id).id
+			if object_id is not None:
+				object_id = Layer.objects.get(uuid=object_id).id
+
 		file = request.FILES['file']
 		title = request.POST['title']
 		document = Document(content_type=content_type, object_id=object_id, title=title, file=file)
@@ -153,14 +163,19 @@ def _documents_search(query, start, limit, sort_field, sort_dir, related_id, rel
 		except:
 			owner_name = document.owner.first_name + " " + document.owner.last_name
 
+		try:
+			related = document.content_type.get_object_for_this_type(id=document.object_id)
+		except:
+			related = ''
+
 		mapdict = {
 			'id' : document.id,
 			'title' : document.title,
 			'detail' : reverse('documents.views.documentdetail', args=(document.id,)),
 			'owner' : owner_name,
 			'owner_detail' : reverse('profiles.views.profile_detail', args=(document.owner.username,)),
-			'related': document.content_type.get_object_for_this_type(id=document.object_id).title,
-			'related_url': document.content_type.get_object_for_this_type(id=document.object_id).get_absolute_url(),
+			'related': related.title if related != '' else '',
+			'related_url': related.get_absolute_url() if related != '' else '',
 			'type': document.type,
 			}
 		documents_list.append(mapdict)
