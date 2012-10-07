@@ -12,16 +12,16 @@
 Ext.onReady(function(){
    {% autoescape off %}
  
-    var searchTable = new GeoNode.DocumentSearchTable({
-        renderTo: 'search_results',
-        trackSelection: true,
-        permalinkURL: '{% url documents_search %}',
-        searchURL: '{% url documents_search_api %}',
-        searchParams: {{init_search}}
-    });
+	var searchTable = new GeoNode.DocumentSearchTable({
+		renderTo: 'search_results',
+		trackSelection: true,
+		permalinkURL: '{% url documents_search %}',
+		searchURL: '{% url documents_search_api %}',
+		searchParams: {{init_search}}
+	});
 
 
-    {% endautoescape %}
+	{% endautoescape %}
 });
 </script>
 {% endblock %}
@@ -29,13 +29,13 @@ Ext.onReady(function(){
 {% block main %} 
 <div class="twocol">
   <div class="block">
-    <h2>{% trans "Search" %} <span class="subtitle">{% trans "for documents" %}</span></h2>
+	<h2>{% trans "Search" %} <span class="subtitle">{% trans "for documents" %}</span></h2>
 
-    <div id="search_results"></div>  
+	<div id="search_results"></div>  
 
-    <p class="explain">{%trans "Click the <b>+</b> on any row to show map abstract." %}
-      {% trans "To bookmark your current search use this" %} <a href="#" class="permalink">{% trans "permalink" %}</a>
-    </p>
+	<p class="explain">{%trans "Click the <b>+</b> on any row to show map abstract." %}
+	  {% trans "To bookmark your current search use this" %} <a href="#" class="permalink">{% trans "permalink" %}</a>
+	</p>
   </div>
 </div>
 {% endblock %}

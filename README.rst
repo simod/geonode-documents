@@ -33,9 +33,4 @@ Extras
 	
 	copy the content of the extra/maps/info_snippet.html and insert it in your mapinfo.html or layer.html file in the "header" and "sidebar" block.
 
-Features
---------
-
-- (Planned) Integration with GeoNetwork (maps and files registered in GeoNetwork)
-- (Planned) Auto pdf document creation after using the print button in the map composer.
 

@@ -4,39 +4,39 @@
 {% block title %} {% trans "Upload Document" %} - {{ block.super }} {% endblock %}
 
 {% block head %}
-    {% include "geonode/ext_header.html" %}
-    {% include "geonode/app_header.html" %}
-    <link rel="stylesheet" type="text/css"
-          href="{{ GEONODE_CLIENT_LOCATION }}theme/ux/fileuploadfield/fileuploadfield.css"/>
-    {{ block.super }}
+	{% include "geonode/ext_header.html" %}
+	{% include "geonode/app_header.html" %}
+	<link rel="stylesheet" type="text/css"
+		  href="{{ GEONODE_CLIENT_LOCATION }}theme/ux/fileuploadfield/fileuploadfield.css"/>
+	{{ block.super }}
 {% endblock %}
 
 {% block main %}
-    <div class="twocol">
-        <h2>{% trans "Add document" %}</h2>
-        {% if errors %}
-            <div id="errors">
-                {% for error in errors %}
-                    <div>{{ error }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
+	<div class="twocol">
+		<h2>{% trans "Add document" %}</h2>
+		{% if errors %}
+			<div id="errors">
+				{% for error in errors %}
+					<div>{{ error }}</div>
+				{% endfor %}
+			</div>
+		{% endif %}
 
-        <div id="upload_form">
-        </div>
-    </div>
-    <script type="text/javascript">
-        {% autoescape off %}
-            Ext.onReady(function() {
+		<div id="upload_form">
+		</div>
+	</div>
+	<script type="text/javascript">
+		{% autoescape off %}
+			Ext.onReady(function() {
 				Ext.QuickTips.init();
 
 				var form_target = "{% url documents.views.upload_document %}";
 
 				var title = new Ext.form.TextField({
-				    id: 'title',
-				    fieldLabel: gettext('Title'),
+					id: 'title',
+					fieldLabel: gettext('Title'),
 					emptyText: gettext('Choose a title'),
-				    name: 'title'
+					name: 'title'
 				});
 
 				var listeners = {
@@ -46,7 +46,7 @@
 					}
 				};
 
-	            var ctype = new Ext.form.ComboBox({
+				var ctype = new Ext.form.ComboBox({
 					typeAhead: true,
 					triggerAction: 'all',
 					id: 'ctype',
@@ -58,28 +58,28 @@
 					forceSelection: true,
 					store: [['layer','Layer'],['map','Map']],
 					hiddenName: 'ctype',
-		            listeners:{
-		            	select: function(){
-		            		var type = this.getValue();
-		            		var form = Ext.getCmp('doc_form');
-		            		if(form.getComponent('objid')){
-		            			form.remove(form.getComponent('objid'));
-		            		};
-		            		form.insert(1,getObjidCombo(type));
-		            		form.doLayout();
-		            	}
-		            }
-	            });
+					listeners:{
+						select: function(){
+							var type = this.getValue();
+							var form = Ext.getCmp('doc_form');
+							if(form.getComponent('objid')){
+								form.remove(form.getComponent('objid'));
+							};
+							form.insert(1,getObjidCombo(type));
+							form.doLayout();
+						}
+					}
+				});
 
-	            
+				
 
-	            var getObjidCombo = function(type){
+				var getObjidCombo = function(type){
 
-	            	var url = type == 'layer' ? '/data/search/api' : '/maps/search/api';
-	            	var id_field = type == 'layer' ? 'uuid' : 'id';
+					var url = type == 'layer' ? '/data/search/api' : '/maps/search/api';
+					var id_field = type == 'layer' ? 'uuid' : 'id';
 
-		            return new Ext.form.ComboBox({
-		            	triggerAction: 'all',
+					return new Ext.form.ComboBox({
+						triggerAction: 'all',
 						id: 'objid',
 						mode: 'local',
 						fieldLabel: gettext('With title'),
@@ -91,7 +91,7 @@
 						displayField: 'title',
 						hiddenName: 'objid',
 						store: new Ext.data.JsonStore({
-		            		url: url,
+							url: url,
 							baseParams: {limit: 50},
 							root:'rows',
 							storeId: 'objects',
@@ -106,8 +106,8 @@
 								this.expand();
 							}
 						}
-		            });
-		        };
+					});
+				};
 
 				var base_file = new Ext.ux.form.FileUploadField({
 					id: 'base_file',
@@ -171,37 +171,37 @@
 						}
 					}]
 				});
-                var permissionsEditor = new GeoNode.PermissionsEditor({
-                	levels: {
-                		'admin': 'document_admin',
-                		'readwrite': 'document_readwrite',
-                		'readonly': 'document_readonly',
-                		'none': '_none'
-                	},
-                    renderTo: "permissions_form",
-                    userLookup: "{% url geonode.views.ajax_lookup %}",
-                    listeners: {
-                        updated: function(pe) {
-                            permissionsField.setValue(Ext.util.JSON.encode(pe.writePermissions()));
-                        }
-                    },
-                    permissions: {
-                        anonymous: 'document_readonly',
-                        authenticated: 'document_readonly',
-                        users:[]
-                    }
-                });
-                permissionsEditor.fireEvent("updated", permissionsEditor);
-            });
-        {% endautoescape %}
-    </script>
+				var permissionsEditor = new GeoNode.PermissionsEditor({
+					levels: {
+						'admin': 'document_admin',
+						'readwrite': 'document_readwrite',
+						'readonly': 'document_readonly',
+						'none': '_none'
+					},
+					renderTo: "permissions_form",
+					userLookup: "{% url geonode.views.ajax_lookup %}",
+					listeners: {
+						updated: function(pe) {
+							permissionsField.setValue(Ext.util.JSON.encode(pe.writePermissions()));
+						}
+					},
+					permissions: {
+						anonymous: 'document_readonly',
+						authenticated: 'document_readonly',
+						users:[]
+					}
+				});
+				permissionsEditor.fireEvent("updated", permissionsEditor);
+			});
+		{% endautoescape %}
+	</script>
 
 {% endblock %}
 
 {% block sidebar %}
-    <div class="threecol">
-        <h3>{% trans "Permissions" %}</h3>
+	<div class="threecol">
+		<h3>{% trans "Permissions" %}</h3>
 
-        <div id="permissions_form"></div>
-    </div>
+		<div id="permissions_form"></div>
+	</div>
 {% endblock %}
