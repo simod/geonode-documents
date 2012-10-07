@@ -1,54 +1,14 @@
 {% extends "page_layout.html" %}
 {% load i18n %}
 
-{% block title %} {% trans "Upload Cartography" %} - {{ block.super }} {% endblock %}
+{% block title %} {% trans "Upload Document" %} - {{ block.super }} {% endblock %}
 
 {% block head %}
     {% include "geonode/ext_header.html" %}
     {% include "geonode/app_header.html" %}
-    {% include "geonode/geo_header.html" %}
     <link rel="stylesheet" type="text/css"
           href="{{ GEONODE_CLIENT_LOCATION }}theme/ux/fileuploadfield/fileuploadfield.css"/>
     {{ block.super }}
-    <script type="text/javascript">
-        Ext.onReady(function() {
-	         {% autoescape off %}
-
-	        var win = new Ext.Window({
-				height: 'auto',
-				width: 700,
-				title: 'New Map',
-				collapsible: false,
-				closable: false,
-				resizable: false,
-				minimizable: true,
-				minimizeTo: Ext.get('newmap'),
-				hideBorders: false,
-				layout: 'fit',
-				x: 100,
-				y: 130,
-				items:[
-					new  Ext.Panel({
-						html: "<iframe id=\"map\" name=\"map\" style=\"overflow:auto;width:100%;height:600px;\" frameborder=\"0\"  src=\"/documents/newmap\"></iframe>"
-					})
-				],
-				listeners: {
-					minimize: function(){
-						this.hide(this.minimizeTo);
-					}
-				}
-	        });
-
-			Ext.get('newmap').on('click',function(){win.show()});
-		
-            {% endautoescape %}
-        });
-    </script>
-	<script type="text/javascript">
-		function refreshMaps(){
-			Ext.getCmp('id_map').store.reload();
-		}
-	</script>
 {% endblock %}
 
 {% block main %}
@@ -63,7 +23,6 @@
         {% endif %}
 
         <div id="upload_form">
-	        <button type="button" id="newmap">New Map</button>
         </div>
     </div>
     <script type="text/javascript">
@@ -87,41 +46,68 @@
 					}
 				};
 
-	            var themap = new Ext.form.ComboBox({
+	            var ctype = new Ext.form.ComboBox({
 					typeAhead: true,
 					triggerAction: 'all',
-					id: 'id_map',
+					id: 'ctype',
 					mode: 'local',
-					fieldLabel: gettext('Map'),
-					emptyText: gettext('Select a map to link the document with'),
+					fieldLabel: gettext('Link to a'),
+					emptyText: gettext('Select a resource type to link the document with'),
 					autoSelect: true,
-					name: 'map',
+					name: 'ctype',
 					forceSelection: true,
-					store: new Ext.data.JsonStore({
-						url: '{% url maps_search_api %}',
-						baseParams: {limit: 50},
-						root:'rows',
-						storeId: 'maps',
-						fields: ['id','title'],
-						idProperty: 'id',
-						autodestroy: true
-					}),
-					valueField: 'id',
-					displayField: 'title',
-					hiddenName: 'map',
+					store: [['layer','Layer'],['map','Map']],
+					hiddenName: 'ctype',
 		            listeners:{
-			            afterrender: function(el){
-				            el.store.load(
-							{% if mapid %}
-							{
-					            callback:function(){
-									el.setValue(el.store.getById({{ mapid }}).data.id);
-						        }
-				            }
-							{% endif %});
-			            }
+		            	select: function(){
+		            		var type = this.getValue();
+		            		var form = Ext.getCmp('doc_form');
+		            		if(form.getComponent('objid')){
+		            			form.remove(form.getComponent('objid'));
+		            		};
+		            		form.insert(1,getObjidCombo(type));
+		            		form.doLayout();
+		            	}
 		            }
 	            });
+
+	            
+
+	            var getObjidCombo = function(type){
+
+	            	var url = type == 'layer' ? '/data/search/api' : '/maps/search/api';
+	            	var id_field = type == 'layer' ? 'uuid' : 'id';
+
+		            return new Ext.form.ComboBox({
+		            	triggerAction: 'all',
+						id: 'objid',
+						mode: 'local',
+						fieldLabel: gettext('With title'),
+						emptyText: gettext('Select the one'),
+						autoSelect: true,
+						name: 'objid',
+						forceSelection: true,
+						valueField: id_field,
+						displayField: 'title',
+						hiddenName: 'objid',
+						store: new Ext.data.JsonStore({
+		            		url: url,
+							baseParams: {limit: 50},
+							root:'rows',
+							storeId: 'objects',
+							fields: [id_field,'title'],
+							idProperty: id_field,
+							autodestroy: true,
+							autoLoad: true
+						}),
+						listeners: {
+							afterrender: function(){
+								this.focus();
+								this.expand();
+							}
+						}
+		            });
+		        };
 
 				var base_file = new Ext.ux.form.FileUploadField({
 					id: 'base_file',
@@ -137,6 +123,7 @@
 				});
 
 				var fp = new Ext.FormPanel({
+					id: 'doc_form',
 					renderTo: 'upload_form',
 					fileUpload: true,
 					width: 500,
@@ -148,7 +135,7 @@
 						anchor: '95%',
 						msgTarget: 'side'
 					},
-					items: [themap,title, base_file, permissionsField, {
+					items: [ctype, title, base_file, permissionsField, {
 						xtype: "hidden",
 						name: "csrfmiddlewaretoken",
 						value: "{{ csrf_token }}"

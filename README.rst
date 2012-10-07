@@ -29,11 +29,9 @@ Extras
 	
 	(advanced) copy the content of the page_layout_snippet.html and insert it in your page_layout.html file in the "nav" block.
 
-#. In order to have the documents linked in the map detail template:
-
-	(basic) replace the mapinfo.html file in the "extras/maps" folder with the original one in your template folder. (only use this if you have never modified the mapinfo.html file)
+#. In order to have the documents linked in the map or layer detail template:
 	
-	(advanced) copy the content of the mapinfo_snippet.html and insert it in your mapinfo.html file in the "sidebar" block.
+	copy the content of the info_snippet.html and insert it in your mapinfo.html or layer.html file in the "header" and "sidebar" block.
 
 Features
 --------

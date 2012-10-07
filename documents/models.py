@@ -1,7 +1,10 @@
+import os
+
 from django.db import models
 from geonode.maps.models import Map
 from django.db.models import signals
-import os
+from django.contrib.contenttypes.models import ContentType
+
 from django.contrib.auth.models import User
 from geonode.core.models import PermissionLevelMixin
 from geonode.core.models import AUTHENTICATED_USERS, ANONYMOUS_USERS
@@ -14,8 +17,11 @@ class Document(models.Model,PermissionLevelMixin):
 
 	"""
 
+	# Relation to the resource model
+	content_type = models.ForeignKey(ContentType)
+	object_id = models.PositiveIntegerField()
+
 	title = models.CharField(max_length=255)
-	maps = models.ManyToManyField(Map)
 	file = models.FileField(upload_to='documents')
 	type = models.CharField(max_length=128,blank=True,null=True)
 	owner = models.ForeignKey(User, verbose_name='owner', blank=True, null=True)
@@ -23,9 +29,8 @@ class Document(models.Model,PermissionLevelMixin):
 	def __unicode__(self):
 		return self.title
 
-	@models.permalink
 	def get_absolute_url(self):
-		return self.file.url
+		return '/documents/%s' % self.id
 		
 	class Meta:
 		# custom permissions,
