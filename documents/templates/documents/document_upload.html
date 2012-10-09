@@ -92,13 +92,17 @@
 						hiddenName: 'objid',
 						store: new Ext.data.JsonStore({
 							url: url,
-							baseParams: {limit: 50},
+							baseParams: {limit: 100},
 							root:'rows',
 							storeId: 'objects',
 							fields: [id_field,'title'],
 							idProperty: id_field,
 							autodestroy: true,
-							autoLoad: true
+							autoLoad: true,
+							sortInfo: {
+								field: 'title',
+								direction: 'ASC'
+							}
 						}),
 						listeners: {
 							afterrender: function(){
