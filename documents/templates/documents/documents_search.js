@@ -1,3 +1,4 @@
+<script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
 <script type="text/javascript" charset="utf-8">
 	Ext.namespace("GeoNode");
 
@@ -5,20 +6,20 @@
 
 		autoExpandColumn: 'title',
 
-		titleHeaderText: 'UT: Title',
-		contactHeaderText: "UT: Contact",
-		relatedHeaderText: "UT: Related",
-		mapLinkLabelText: "UT:View this Document",
-		previousText: 'UT: Prev',
-		nextText: 'UT: Next',
-		ofText: 'UT: of',
-		noResultsText: 'UT: Your search did not match any items.',
-		searchLabelText: 'UT: Search Documents',
-		searchButtonText: 'UT: Search',
-		showingText: 'UT: Showing',
-		loadingText: 'UT: Loading',
-		permalinkText: 'UT: permalink',
-		typeHeaderText: 'UT: Type',
+		titleHeaderText: gettext('Title'),
+		contactHeaderText: gettext("Contact"),
+		relatedHeaderText: gettext("Related"),
+		mapLinkLabelText: gettext("View this Document"),
+		previousText: gettext('Prev'),
+		nextText: gettext('Next'),
+		ofText: gettext('of'),
+		noResultsText: gettext('Your search did not match any items.'),
+		searchLabelText: gettext('Search Documents'),
+		searchButtonText: gettext('Search'),
+		showingText: gettext('Showing'),
+		loadingText: gettext('Loading'),
+		permalinkText: gettext('permalink'),
+		typeHeaderText: gettext('Type'),
 
 
 		constructor: function(config) {
