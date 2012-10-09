@@ -315,6 +315,7 @@
 			var searchForm = new Ext.Panel({
 				 frame:false,
 				 border: false,
+				 id: 'search_input',
 				 layout: new Ext.layout.HBoxLayout({defaultMargins: {
 					 top: 10,
 					 bottom: 10,
