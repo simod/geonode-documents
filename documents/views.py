@@ -2,7 +2,6 @@ import json, unicodedata
 
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse
-from geonode.maps.models import Map, Contact
 
 from django.template import RequestContext, loader
 from django.utils.translation import ugettext as _
@@ -13,10 +12,9 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 
-from geonode.maps.views import _perms_info
+from geonode.maps.views import _perms_info, default_map_config
 from geonode.core.models import AUTHENTICATED_USERS, ANONYMOUS_USERS
-from geonode.maps.views import default_map_config
-from geonode.maps.models import Layer
+from geonode.maps.models import Layer, Map, Contact
 
 from documents.models import Document
 
@@ -275,29 +273,27 @@ def set_document_permissions(m, perm_spec):
 		user = User.objects.get(username=username)
 		m.set_user_level(user, level)
 
-def get_documents_from_related(req):
+def resources_search(request):
 	"""
-	Returns the list of the documents related to the given resource.
+	Search for maps and layers. Has no limit and allows sorting.
 	"""
-
-	if req.method == 'GET':
-		type = req.GET['type']
-		id = int(req.GET['id'])	
-
-		ctype = ContentType.objects.get(name=type)
-		docs = Document.objects.filter(content_type = ctype, object_id = id)
-		doc_list = []
-
-		for doc in docs:
-
-			docdict = {
-				'title': doc.title,
-				'url': doc.get_absolute_url(),
-				'type': doc.type
-			}
-			doc_list.append(docdict)
-
-		result = {'rows': doc_list,'total': docs.count()}
-		return HttpResponse(json.dumps(result))
+	if request.method == 'GET':
+		params = request.GET
+	elif request.method == 'POST':
+		params = request.POST
 	else:
 		return HttpResponse(status=405)
+
+	type = params.get('type','layer')
+	qset = Layer.objects.all().order_by('title') if type == 'layer' else Map.objects.all().order_by('title')
+
+	resources_list= []
+
+	for item in qset:
+		 resources_list.append({
+			'id' : item.id,
+			'title' : item.title,
+		})
+
+	result = {'rows': resources_list,'total': qset.count()}
+	return HttpResponse(json.dumps(result))

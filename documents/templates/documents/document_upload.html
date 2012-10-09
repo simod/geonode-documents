@@ -75,9 +75,6 @@
 
 				var getObjidCombo = function(type){
 
-					var url = type == 'layer' ? '/data/search/api' : '/maps/search/api';
-					var id_field = type == 'layer' ? 'uuid' : 'id';
-
 					return new Ext.form.ComboBox({
 						triggerAction: 'all',
 						id: 'objid',
@@ -87,22 +84,20 @@
 						autoSelect: true,
 						name: 'objid',
 						forceSelection: true,
-						valueField: id_field,
+						valueField: 'id',
 						displayField: 'title',
 						hiddenName: 'objid',
 						store: new Ext.data.JsonStore({
-							url: url,
-							baseParams: {limit: 100},
+							url: 'resources/search/api/',
+							baseParams:{
+								type: type
+							},
 							root:'rows',
 							storeId: 'objects',
-							fields: [id_field,'title'],
-							idProperty: id_field,
+							fields: ['id','title'],
+							idProperty: 'id',
 							autodestroy: true,
-							autoLoad: true,
-							sortInfo: {
-								field: 'title',
-								direction: 'ASC'
-							}
+							autoLoad: true
 						}),
 						listeners: {
 							afterrender: function(){
