@@ -3,13 +3,14 @@ import os
 from django.db import models
 from django.db.models import signals
 from django.contrib.contenttypes.models import ContentType
-
 from django.contrib.auth.models import User
-from geonode.core.models import PermissionLevelMixin
-from geonode.core.models import AUTHENTICATED_USERS, ANONYMOUS_USERS
+
+from geonode.security.models import PermissionLevelMixin
+from geonode.security.models import AUTHENTICATED_USERS, ANONYMOUS_USERS
+from geonode.layers.models import ResourceBase
 
 
-class Document(models.Model,PermissionLevelMixin):
+class Document(ResourceBase):
 	"""
 
 	A document is any kind of information that can be attached to a map such as pdf, images, videos, xls...
@@ -20,16 +21,14 @@ class Document(models.Model,PermissionLevelMixin):
 	content_type = models.ForeignKey(ContentType,blank=True,null=True)
 	object_id = models.PositiveIntegerField(blank=True,null=True)
 
-	title = models.CharField(max_length=255)
 	file = models.FileField(upload_to='documents')
 	type = models.CharField(max_length=128,blank=True,null=True)
-	owner = models.ForeignKey(User, verbose_name='owner', blank=True, null=True)
 
-	def __unicode__(self):
+	def __unicode__(self):	
 		return self.title
 
 	def get_absolute_url(self):
-		return '/documents/%s' % self.id
+		return reverse('document_detail', args=(self.id,))
 		
 	class Meta:
 		# custom permissions,
