@@ -2,9 +2,9 @@ from django.conf.urls.defaults import patterns, url
 from django.views.i18n import javascript_catalog
 
 urlpatterns = patterns('documents.views',
-	(r'^$','documents'),
-	(r'^(?P<docid>\d+)$', 'documentdetail'),
-	url(r'^new/?$', 'upload_document', name='document-upload'),
+	url(r'^$','documents', name='documents_browse'),
+	url(r'^(?P<docid>\d+)/?$', 'documentdetail', name='document_detail'),
+	url(r'^upload/?$', 'upload_document', name='document-upload'),
 	(r'^newmap$', 'newmaptpl'),
 	url(r'^search/?$', 'documents_search_page', name='documents_search'),
     url(r'^search/api/?$', 'documents_search', name='documents_search_api'),
