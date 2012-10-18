@@ -2,7 +2,6 @@ import json, unicodedata
 
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse
-
 from django.template import RequestContext, loader
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
@@ -13,8 +12,10 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 
 from geonode.maps.views import _perms_info, default_map_config
-from geonode.core.models import AUTHENTICATED_USERS, ANONYMOUS_USERS
-from geonode.maps.models import Layer, Map, Contact
+from geonode.security.models import AUTHENTICATED_USERS, ANONYMOUS_USERS
+from geonode.maps.models import Map
+from geonode.layers.models import Layer
+from geonode.people.models import Contact
 
 from documents.models import Document
 
@@ -88,7 +89,8 @@ def upload_document(request):
 		permissions = json.loads(permissionsStr)
 		set_document_permissions(document, permissions)
 
-		return HttpResponse(json.dumps({'success': True,'redirect_to':'/documents/' + str(document.id)}))
+		return HttpResponse(json.dumps({'success': True,'redirect_to': reverse('document_detail', 
+				args=(document.id,))}))
 		
 #### DOCUMENTS SEARCHING ####
 
@@ -169,9 +171,9 @@ def _documents_search(query, start, limit, sort_field, sort_dir, related_id, rel
 		mapdict = {
 			'id' : document.id,
 			'title' : document.title,
-			'detail' : reverse('documents.views.documentdetail', args=(document.id,)),
+			'detail' : reverse('document_detail', args=(document.id,)),
 			'owner' : owner_name,
-			'owner_detail' : reverse('profiles.views.profile_detail', args=(document.owner.username,)),
+			'owner_detail' : document.owner.get_profile().get_absolute_url(),
 			'related': related.title if related != '' else '',
 			'related_url': related.get_absolute_url() if related != '' else '',
 			'type': document.type,
