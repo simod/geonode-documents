@@ -21,8 +21,8 @@ class Document(ResourceBase):
 	content_type = models.ForeignKey(ContentType,blank=True,null=True)
 	object_id = models.PositiveIntegerField(blank=True,null=True)
 
-	file = models.FileField(upload_to='documents')
-	type = models.CharField(max_length=128,blank=True,null=True)
+	doc_file = models.FileField(upload_to='documents')
+	extension = models.CharField(max_length=128,blank=True,null=True)
 
 	def __unicode__(self):	
 		return self.title
@@ -57,7 +57,7 @@ class Document(ResourceBase):
 			self.set_user_level(self.owner, self.LEVEL_ADMIN) 
 
 def pre_save_document(instance, sender, **kwargs):
-	base_name, extension = os.path.splitext(instance.file.name)
-	instance.type=extension[1:]
+	base_name, extension = os.path.splitext(instance.doc_file.name)
+	instance.extension=extension[1:]
 
 signals.pre_save.connect(pre_save_document, sender=Document)
