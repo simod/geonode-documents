@@ -1,7 +1,7 @@
 [
 {
     "pk": 7,
-    "model": "core.objectrole",
+    "model": "security.objectrole",
     "fields": {
         "codename": "document_readonly",
         "title": "Read Only",
@@ -14,7 +14,7 @@
 },
 {
     "pk": 8,
-    "model": "core.objectrole",
+    "model": "security.objectrole",
     "fields": {
         "codename": "document_readwrite",
         "title": "Read/Write",
@@ -28,7 +28,7 @@
 },
 {
     "pk": 9,
-    "model": "core.objectrole",
+    "model": "security.objectrole",
     "fields": {
         "codename": "document_admin",
         "title": "Administrative",
