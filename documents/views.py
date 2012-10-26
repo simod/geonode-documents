@@ -79,9 +79,9 @@ def upload_document(request):
 			if object_id is not None:
 				object_id = Layer.objects.get(uuid=object_id).id
 
-		file = request.FILES['file']
+		doc_file = request.FILES['file']
 		title = request.POST['title']
-		document = Document(content_type=content_type, object_id=object_id, title=title, file=file)
+		document = Document(content_type=content_type, object_id=object_id, title=title, doc_file=doc_file)
 		document.owner = request.user
 		document.save()
 		document.set_default_permissions()
@@ -176,7 +176,7 @@ def _documents_search(query, start, limit, sort_field, sort_dir, related_id, rel
 			'owner_detail' : document.owner.get_profile().get_absolute_url(),
 			'related': related.title if related != '' else '',
 			'related_url': related.get_absolute_url() if related != '' else '',
-			'type': document.type,
+			'type': document.extension,
 			}
 		documents_list.append(mapdict)
 
@@ -286,8 +286,8 @@ def resources_search(request):
 	else:
 		return HttpResponse(status=405)
 
-	type = params.get('type','layer')
-	qset = Layer.objects.all().order_by('title') if type == 'layer' else Map.objects.all().order_by('title')
+	ctype = params.get('type','layer')
+	qset = Layer.objects.all().order_by('title') if ctype == 'layer' else Map.objects.all().order_by('title')
 
 	resources_list= []
 
