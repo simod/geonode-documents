@@ -1,0 +1,30 @@
+<!--
+Copy this piece in the "head" block of the maps/mapinfo.html od maps/layer.html templates.
+-->
+{% include "documents/documents_search.js" %}
+<script type="text/javascript">
+	  Ext.onReady(function(){
+		 {% autoescape off %}
+	   
+			var searchTable = new GeoNode.DocumentSearchTable({
+			 	renderTo: 'search_results',
+			 	trackSelection: true,
+			 	permalinkURL: '{% url documents_search %}',
+			 	searchURL: '{% url documents_search_api %}',
+			 	searchParams: {
+					'related_type': 'layer',
+					'related_id': {{ layer.id }}
+			  	}
+		 	});
+
+		  {% endautoescape %}
+	  });
+</script>
+<style>#search_input{display: none;}</style>
+<!--
+Copy the following in the "sidebar" block (or where you prefer to have the documents listed) of the maps/mapinfo.html od maps/layer.html templates.
+-->
+
+<h3>{% trans "Documents" %}</h3>
+	 	<div id='search_results'></div>
+	 	<a href="{% url documents.views.upload_document %}">Upload a new document</a><br /><br />

@@ -11,12 +11,12 @@
 Ext.onReady(function(){
 
 {% autoescape off %}
-  var submitForm = function() {
-      Ext.query('#search_form form')[0].submit();
-  };
-  var searchButton = new Ext.Button({renderTo: 'submit_search', text: '{% trans "Search" %}',
-                                     handler: submitForm});
-  var searchInput = new Ext.form.TextField({applyTo: 'search_query', width: 350});
+	var submitForm = function() {
+			Ext.query('#search_form form')[0].submit();
+	};
+	var searchButton = new Ext.Button({renderTo: 'submit_search', text: '{% trans "Search" %}',
+																		 handler: submitForm});
+	var searchInput = new Ext.form.TextField({applyTo: 'search_query', width: 350});
 {% endautoescape %}
 
 });
@@ -26,38 +26,38 @@ Ext.onReady(function(){
 {% block main %}
 <div class="twocol">
 
-  <div id="search_form" class="block">
-    <h2>{% trans "Search" %} <span class="subtitle">{% trans "for documents" %}</span></h2>
+	<div id="search_form" class="block">
+		<h2>{% trans "Search" %} <span class="subtitle">{% trans "for documents" %}</span></h2>
 
-    <form action="{% url documents.views.documents_search_page %}" method="POST">
-      {% csrf_token %}
-      <table>
-        <tr>
-          <td>
-            <input type="text" id="search_query" name="q" />
-          </td>
-          <td>
-            <div id="submit_search"></div>
-          </td>
-        </tr>
-      </table>
-      <p>
-        <a href="{% url documents.views.documents_search_page %}">{% trans "All Documents" %}</a> |
-      </p>
-    </form>
-  </div>
-  
-  <div id="create" class="block">
-    <h2>{% trans "Upload new Document" %}</h2>
-    <p>{% trans "Use GeoNode's upload form to upload and link a document to a Map." %}
-    </p>
-    <p>
-      <a href="{% url documents.views.upload_document %}">{% trans "Upload a document" %}</a>
-    </p>
-  </div>
+		<form action="{% url documents.views.documents_search_page %}" method="POST">
+			{% csrf_token %}
+			<table>
+				<tr>
+					<td>
+						<input type="text" id="search_query" name="q" />
+					</td>
+					<td>
+						<div id="submit_search"></div>
+					</td>
+				</tr>
+			</table>
+			<p>
+				<a href="{% url documents.views.documents_search_page %}">{% trans "All Documents" %}</a> |
+			</p>
+		</form>
+	</div>
+	
+	<div id="create" class="block">
+		<h2>{% trans "Upload new Document" %}</h2>
+		<p>{% trans "Use GeoNode's upload form to upload and link a document to a Map." %}
+		</p>
+		<p>
+			<a href="{% url documents.views.upload_document %}">{% trans "Upload a document" %}</a>
+		</p>
+	</div>
 
-  <!-- "Your Maps" button goes here -->
-  <!-- create map button goes here -->
+	<!-- "Your Maps" button goes here -->
+	<!-- create map button goes here -->
 
 </div>
 {% endblock %}

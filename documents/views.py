@@ -1,24 +1,21 @@
-import json
-import unicodedata
+import json, unicodedata
 
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
-
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
-
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.contrib.auth.models import User
 
-from geonode.maps.models import Map
-from geonode.people.models import Contact
-from geonode.security.views import _perms_info
+from geonode.maps.views import _perms_info, default_map_config
 from geonode.security.models import AUTHENTICATED_USERS, ANONYMOUS_USERS
-from geonode.maps.views import new_map_config
+from geonode.maps.models import Map
+from geonode.layers.models import Layer
+from geonode.people.models import Contact
 
 from documents.models import Document
 
@@ -44,11 +41,16 @@ def documentdetail(request, docid):
 		return HttpResponse(loader.render_to_string('401.html',
 			RequestContext(request, {'error_message':
 				_("You are not allowed to view this document.")})), status=401)
+	try:
+		related = document.content_type.get_object_for_this_type(id=document.object_id)
+	except:
+		related = ''
 
 	return render_to_response("documents/docinfo.html", RequestContext(request, {
 		'permissions_json': json.dumps(_perms_info(document, DOCUMENT_LEV_NAMES)),
 		'document': document,
-		'imgtypes': imgtypes
+		'imgtypes': imgtypes,
+		'related': related
 	}))
 
 def newmaptpl(request):
@@ -56,53 +58,48 @@ def newmaptpl(request):
 	return render_to_response('documents/newmaptpl.html',RequestContext(request, {'config':config}))
 
 @login_required
-def upload_document(request,mapid=None):
+def upload_document(request):
 	if request.method == 'GET':
 		return render_to_response('documents/document_upload.html',
-								  RequestContext(request,{'mapid':mapid,}),
+								  RequestContext(request),
 								  context_instance=RequestContext(request)
 		)
 
 	elif request.method == 'POST':
-		mapid = str(request.POST['map'])
-		file = request.FILES['file']
+		
+		try:
+			content_type = ContentType.objects.get(name=request.POST['ctype'])
+			object_id = request.POST['objid']
+		except:
+			content_type = None
+			object_id = None
+		try:
+			int(object_id)
+		except: 
+			if object_id is not None:
+				object_id = Layer.objects.get(uuid=object_id).id
+
+		doc_file = request.FILES['file']
 		title = request.POST['title']
-		document = Document(title=title, file=file)
-		if request.user.is_authenticated(): document.owner = request.user
+		document = Document(content_type=content_type, object_id=object_id, title=title, doc_file=doc_file)
+		document.owner = request.user
 		document.save()
-		document.maps.add(Map.objects.get(id=mapid))
-		return HttpResponse(json.dumps({'success': True,'redirect_to':'/maps/' + str(mapid)}))
+		document.set_default_permissions()
+		permissionsStr = request.POST['permissions']
+		permissions = json.loads(permissionsStr)
+		set_document_permissions(document, permissions)
+
+		return HttpResponse(json.dumps({'success': True,'redirect_to': reverse('document_detail', 
+				args=(document.id,))}))
 		
 #### DOCUMENTS SEARCHING ####
 
 DEFAULT_MAPS_SEARCH_BATCH_SIZE = 10
 MAX_MAPS_SEARCH_BATCH_SIZE = 25
-@csrf_exempt
+
 def documents_search(request):
 	"""
-	for ajax requests, the search returns a json structure 
-	like this: 
-	
-	{
-	'total': <total result count>,
-	'next': <url for next batch if exists>,
-	'prev': <url for previous batch if exists>,
-	'query_info': {
-		'start': <integer indicating where this batch starts>,
-		'limit': <integer indicating the batch size used>,
-		'q': <keywords used to query>,
-	},
-	'rows': [
-	  {
-		'title': <map title,
-		'abstract': '...',
-		'detail' : <url geonode detail page>,
-		'owner': <name of the map's owner>,
-		'owner_detail': <url of owner's profile page>,
-		'last_modified': <date and time of last modification>
-	  },
-	  ...
-	]}
+	Returns a json structure
 	"""
 	if request.method == 'GET':
 		params = request.GET
@@ -124,20 +121,31 @@ def documents_search(request):
 	except: 
 		limit = DEFAULT_MAPS_SEARCH_BATCH_SIZE
 
+	try:
+		related_id = int(params.get('related_id', None))
+	except: 
+		related_id = None
+
+	related_type = params.get('related_type', None)
 
 	sort_field = params.get('sort', u'')
 	sort_field = unicodedata.normalize('NFKD', sort_field).encode('ascii','ignore')	 
 	sort_dir = params.get('dir', 'ASC')
-	result = _documents_search(query, start, limit, sort_field, sort_dir)
+	result = _documents_search(query, start, limit, sort_field, sort_dir, related_id, related_type)
 
 	result['success'] = True
 	return HttpResponse(json.dumps(result), mimetype="application/json")
 
-def _documents_search(query, start, limit, sort_field, sort_dir):
+def _documents_search(query, start, limit, sort_field, sort_dir, related_id, related_type):
 
 	keywords = _split_query(query)
 
 	documents = Document.objects
+
+	if related_id is not None:
+		ctype = ContentType.objects.get(name=related_type)
+		documents = documents.filter(content_type=ctype, object_id=related_id)
+
 	for keyword in keywords:
 		documents = documents.filter(
 			  Q(title__icontains=keyword)
@@ -155,14 +163,20 @@ def _documents_search(query, start, limit, sort_field, sort_dir):
 		except:
 			owner_name = document.owner.first_name + " " + document.owner.last_name
 
+		try:
+			related = document.content_type.get_object_for_this_type(id=document.object_id)
+		except:
+			related = ''
+
 		mapdict = {
 			'id' : document.id,
 			'title' : document.title,
-			'detail' : reverse('documents.views.documentdetail', args=(document.id,)),
+			'detail' : reverse('document_detail', args=(document.id,)),
 			'owner' : owner_name,
-			'owner_detail' : reverse('profile_detail', args=(document.owner.username,)),
-			'maps': [(map.id,map.title) for map in document.maps.all()],
-			'type': document.type
+			'owner_detail' : document.owner.get_profile().get_absolute_url(),
+			'related': related.title if related != '' else '',
+			'related_url': related.get_absolute_url() if related != '' else '',
+			'type': document.extension,
 			}
 		documents_list.append(mapdict)
 
@@ -185,7 +199,6 @@ def _documents_search(query, start, limit, sort_field, sort_dir):
 	
 	return result
 
-@csrf_exempt	
 def documents_search_page(request):
 	# for non-ajax requests, render a generic search page
 
@@ -261,3 +274,28 @@ def set_document_permissions(m, perm_spec):
 	for username, level in perm_spec['users']:
 		user = User.objects.get(username=username)
 		m.set_user_level(user, level)
+
+def resources_search(request):
+	"""
+	Search for maps and layers. Has no limit and allows sorting.
+	"""
+	if request.method == 'GET':
+		params = request.GET
+	elif request.method == 'POST':
+		params = request.POST
+	else:
+		return HttpResponse(status=405)
+
+	ctype = params.get('type','layer')
+	qset = Layer.objects.all().order_by('title') if ctype == 'layer' else Map.objects.all().order_by('title')
+
+	resources_list= []
+
+	for item in qset:
+		 resources_list.append({
+			'id' : item.id,
+			'title' : item.title,
+		})
+
+	result = {'rows': resources_list,'total': qset.count()}
+	return HttpResponse(json.dumps(result))

@@ -1,31 +1,34 @@
-from django.db import models
-from geonode.maps.models import Map
-from django.db.models import signals
 import os
+
+from django.db import models
+from django.db.models import signals
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
+
 from geonode.security.models import PermissionLevelMixin
 from geonode.security.models import AUTHENTICATED_USERS, ANONYMOUS_USERS
+from geonode.layers.models import ResourceBase
 
 
-class Document(models.Model,PermissionLevelMixin):
+class Document(ResourceBase):
 	"""
 
 	A document is any kind of information that can be attached to a map such as pdf, images, videos, xls...
 
 	"""
 
-	title = models.CharField(max_length=255)
-	maps = models.ManyToManyField(Map)
-	file = models.FileField(upload_to='documents')
-	type = models.CharField(max_length=128,blank=True,null=True)
-	owner = models.ForeignKey(User, verbose_name='owner', blank=True, null=True)
+	# Relation to the resource model
+	content_type = models.ForeignKey(ContentType,blank=True,null=True)
+	object_id = models.PositiveIntegerField(blank=True,null=True)
 
-	def __unicode__(self):
+	doc_file = models.FileField(upload_to='documents')
+	extension = models.CharField(max_length=128,blank=True,null=True)
+
+	def __unicode__(self):	
 		return self.title
 
-	@models.permalink
 	def get_absolute_url(self):
-		return self.file.url
+		return reverse('document_detail', args=(self.id,))
 		
 	class Meta:
 		# custom permissions,
@@ -54,7 +57,7 @@ class Document(models.Model,PermissionLevelMixin):
 			self.set_user_level(self.owner, self.LEVEL_ADMIN) 
 
 def pre_save_document(instance, sender, **kwargs):
-	base_name, extension = os.path.splitext(instance.file.name)
-	instance.type=extension[1:]
+	base_name, extension = os.path.splitext(instance.doc_file.name)
+	instance.extension=extension[1:]
 
 signals.pre_save.connect(pre_save_document, sender=Document)

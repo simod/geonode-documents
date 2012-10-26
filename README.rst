@@ -1,7 +1,7 @@
 Documents App for GeoNode
 ===========================
 
-This is a GeoNode extension to handle documents in various formats, even images. It works essentially by enabling files to be attached to GeoNode Map. The layers used to compose the map may or may not be registered in GeoNode.
+This is a GeoNode extension to handle documents in various formats, even images. It works essentially by enabling files to be attached to a GeoNode Map, Layer or be indipendent.
 
 Installation
 ------------
@@ -29,15 +29,6 @@ Extras
 	
 	(advanced) copy the content of the base_snippet.html and insert it in your base.html file in the "nav" block.
 
-#. In order to have the documents linked in the map detail template:
-
-	(basic) replace the mapinfo.html file in the "extras/maps" folder with the original one in your maps/template/maps folder. (only use this if you have never modified the mapinfo.html file)
+#. In order to have the documents linked in the map or layer detail template:
 	
-	(advanced) copy the content of the mapinfo_snippet.html and insert it in your maps/templates/maps/mapinfo.html file in the "sidebar" block.
-
-Features
---------
-
-- (Planned) Full metadata from GeoNode ResourceBase
-- (Planned) Auto pdf document creation after using the print button in the map composer.
-
+	copy the content of the extra/maps/info_snippet.html and insert it in your mapinfo.html or layer.html file in the "header" and "sidebar" block.
