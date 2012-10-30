@@ -1,7 +1,7 @@
 import json, unicodedata
 
 from django.shortcuts import render_to_response, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext, loader
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
@@ -10,14 +10,18 @@ from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.forms.models import inlineformset_factory
 
 from geonode.maps.views import _perms_info, default_map_config
 from geonode.security.models import AUTHENTICATED_USERS, ANONYMOUS_USERS
 from geonode.maps.models import Map
-from geonode.layers.models import Layer
+from geonode.layers.models import Layer, ContactRole
 from geonode.people.models import Contact
+from geonode.layers.forms import LayerForm, LayerUploadForm, NewLayerUploadForm, LayerAttributeForm
+from geonode.people.forms import ContactForm, PocForm
 
 from documents.models import Document
+from documents.forms import DocumentForm
 
 imgtypes = ['jpg','jpeg','tif','tiff','png','gif']
 
@@ -89,8 +93,64 @@ def upload_document(request):
 		permissions = json.loads(permissionsStr)
 		set_document_permissions(document, permissions)
 
-		return HttpResponse(json.dumps({'success': True,'redirect_to': reverse('document_detail', 
+		return HttpResponse(json.dumps({'success': True,'redirect_to': reverse('document_metadata', 
 				args=(document.id,))}))
+
+@login_required
+def document_metadata(request, docid, template='documents/document_metadata.html'):
+    document = Document.objects.get(id=docid)
+
+    poc = document.poc
+    metadata_author = document.metadata_author
+
+    if request.method == "POST":
+        document_form = DocumentForm(request.POST, instance=document, prefix="document")
+    else:
+        document_form = DocumentForm(instance=document, prefix="document")
+
+    if request.method == "POST" and document_form.is_valid():
+        new_poc = document_form.cleaned_data['poc']
+        new_author = document_form.cleaned_data['metadata_author']
+        new_keywords = document_form.cleaned_data['keywords']
+
+        if new_poc is None:
+            poc_form = ContactForm(request.POST, prefix="poc")
+            if poc_form.has_changed and poc_form.is_valid():
+                new_poc = poc_form.save()
+
+        if new_author is None:
+            author_form = ContactForm(request.POST, prefix="author")
+            if author_form.has_changed and author_form.is_valid():
+                new_author = author_form.save()
+
+        if new_poc is not None and new_author is not None:
+            the_document = document_form.save(commit=False)
+            the_document.poc = new_poc
+            the_document.metadata_author = new_author
+            the_document.keywords.add(*new_keywords)
+            the_document.save()
+            return HttpResponseRedirect(reverse('document_detail', args=(document.id,)))
+
+    if poc.user is None:
+        poc_form = ContactForm(instance=poc, prefix="poc")
+    else:
+        document_form.fields['poc'].initial = poc.id
+        poc_form = ContactForm(prefix="poc")
+        poc_form.hidden=True
+
+    if metadata_author.user is None:
+        author_form = ContactForm(instance=metadata_author, prefix="author")
+    else:
+        document_form.fields['metadata_author'].initial = metadata_author.id
+        author_form = ContactForm(prefix="author")
+        author_form.hidden=True
+
+    return render_to_response(template, RequestContext(request, {
+        "document": document,
+        "document_form": document_form,
+        "poc_form": poc_form,
+        "author_form": author_form,
+    }))
 		
 #### DOCUMENTS SEARCHING ####
 
