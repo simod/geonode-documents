@@ -23,7 +23,7 @@ from geonode.people.forms import ContactForm, PocForm
 from documents.models import Document
 from documents.forms import DocumentForm
 
-imgtypes = ['jpg','jpeg','tif','tiff','png','gif']
+IMGTYPES = ['jpg','jpeg','tif','tiff','png','gif']
 
 DOCUMENT_LEV_NAMES = {
 	Document.LEVEL_NONE	 : _('No Permissions'),
@@ -53,7 +53,7 @@ def documentdetail(request, docid):
 	return render_to_response("documents/docinfo.html", RequestContext(request, {
 		'permissions_json': json.dumps(_perms_info(document, DOCUMENT_LEV_NAMES)),
 		'document': document,
-		'imgtypes': imgtypes,
+		'imgtypes': IMGTYPES,
 		'related': related
 	}))
 

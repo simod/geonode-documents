@@ -41,12 +41,12 @@
 	<div class="twocol">
 		<h3>{{ document.title }}</h3>
 
-		{% if document.type in imgtypes %}
+		{% if document.extension in imgtypes %}
 		<div id="embedded_map">
-			<img src="{{document.file.url}}" width='100%' />
+			<img src="{{document.doc_file.url}}" width='100%' />
 		</div>
 		{% else %}
-			<a href="{{ document.file.url }}" target="_blank">Download the {{ document }} document</a>
+			<a href="{{ document.doc_file.url }}" target="_blank">Download the {{ document }} document</a>
 		{%  endif %}
 		<p><strong>{% trans "Contact:" %}</strong> <a
 				href="{{ document.owner.get_profile.get_absolute_url }}">{{ document.owner }}</a></p>
