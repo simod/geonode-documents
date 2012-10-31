@@ -10,7 +10,7 @@ Installation
 
     source bin/activate
 
-    pip install -e git+git://github.com/simod/geonode-documents.git#egg=documents
+    pip install -e git+git://github.com/simod/geonode-documents.git@dev#egg=documents
 
 #. Edit your settings.py file and add ``documents`` to the list of installed apps
 
